@@ -24,7 +24,7 @@ const login = () => {
       return;
     }
     // redirect to main page
-    window.location.href = "index.html";
+    window.location.href = "dashboard.html";
 
     // empty input filed
     username.value = "";
