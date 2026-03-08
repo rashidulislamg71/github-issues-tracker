@@ -1,35 +1,19 @@
-//login function
+const buttons = document.querySelectorAll(".primaryBtn");
 
-const login = () => {
-  const username = document.getElementById("username");
-  const password = document.getElementById("password");
-  const login = document.getElementById("login");
+buttons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    // remove class
+    buttons.forEach((b) => {
+      b.classList.remove("bg-blue-700", "text-white");
+      b.classList.add("bg-white");
+      
+    });
 
-  login.addEventListener("click", () => {
-    const userValue = username.value.trim();
-    const passValue = password.value.trim();
-    //empty check
-    if (userValue === "" || passValue === "") {
-      alert("Username and Password required!");
-      return;
-    }
-    //username check
-    if (userValue !== "admin") {
-      alert("Invalid Username");
-      return;
-    }
-    //password check
-    if (passValue !== "admin123") {
-      alert("Invalid Password");
-      return;
-    }
-    // redirect to main page
-    window.location.href = "dashboard.html";
-
-    // empty input filed
-    username.value = "";
-    password.value = "";
+    //add class
+    btn.classList.remove("bg-white");
+    btn.classList.add("bg-blue-700", "text-white");
+    console.log(btn)
   });
-};
-// call login funcation
-login();
+
+});
+
