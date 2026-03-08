@@ -46,8 +46,10 @@ fetchAllData();
 const renderAllCard = (cardData) => {
   const cardContainer = document.getElementById("card-container");
   const issuesCounter = document.getElementById("issues-counter");
+
   issuesCounter.innerHTML = `${cardData.length} Issues`;
   cardContainer.innerHTML = "";
+
   cardData.forEach((info) => {
     const cardDiv = document.createElement("div");
     const statusImg =
@@ -67,7 +69,6 @@ const renderAllCard = (cardData) => {
 
     const label = info.labels
       ?.map((l) => {
-        console.log(l);
         if (l === "bug") {
           return `<span class="flex items-center gap-1 border px-2  py-1 rounded-full text-sm text-red-500 bg-red-200">
         <i class="fa-solid fa-bug"></i> ${l.toUpperCase()}
@@ -104,7 +105,7 @@ const renderAllCard = (cardData) => {
 
     cardDiv.innerHTML = `
        <div
-          class="max-w-sm w-full bg-white rounded-xl shadow-md border-t-4 overflow-hidden ${cardBorder}"
+          onclick = "fetchIssuesDetails(${info.id})" class="max-w-sm w-full bg-white rounded-xl shadow-md border-t-4 overflow-hidden ${cardBorder}"
         >
           <!-- top section -->
           <div class="p-6">
@@ -156,4 +157,117 @@ const dateFormatting = (date) => {
   const year = newDate.getFullYear();
 
   return `${month}/${day}/${year}`;
+};
+
+const fetchIssuesDetails = async (id) => {
+  const res = await fetch(
+    `https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`,
+  );
+  const details = await res.json();
+  displayIssuesDetails(details);
+};
+
+const displayIssuesDetails = (details) => {
+  const modalContainer = document.getElementById("modal-container");
+  const d = details.data;
+  console.log(d);
+
+  const labelModal = d.labels
+    ?.map((l) => {
+      if (l === "bug") {
+        return `<span class="flex items-center gap-1 border px-2  py-1 rounded-full text-sm text-red-500 bg-red-200">
+        <i class="fa-solid fa-bug"></i> ${l.toUpperCase()}
+      </span>`;
+      }
+
+      if (l === "help wanted") {
+        return `<span class="flex items-center gap-1 border px-3 font-bold py-1 rounded-full text-sm text-yellow-600 bg-yellow-100">
+        <i class="fa-solid fa-life-ring"></i> ${l.toUpperCase().sliceLabel}
+      </span>`;
+      }
+
+      if (l === "enhancement") {
+        return `<span class="flex items-center gap-1 border px-3 font-bold py-1 rounded-full text-sm text-green-500 bg-green-200">
+        <i class="fa-solid fa-wand-magic-sparkles"></i> ${l.toUpperCase()}
+      </span>`;
+      }
+
+      if (l === "good first issue") {
+        return `<span class="flex items-center gap-1 border px-3 font-bold py-1 rounded-full text-sm text-purple-500 bg-purple-200">
+        <i class="fa-solid fa-star"></i> ${l.toUpperCase()}
+      </span>`;
+      }
+
+      if (l === "documentation") {
+        return `<span class="flex items-center gap-1 border px-3 font-bold py-1 rounded-full text-sm text-gray-500 bg-gray-200">
+        <i class="fa-solid fa-file-code"></i> ${l.toUpperCase()}
+      </span>`;
+      }
+
+      return "";
+    })
+    .join("");
+
+  const priorityModalClass =
+    d.priority === "high"
+      ? "bg-red-100 text-red-600"
+      : d.priority === "medium"
+        ? "bg-yellow-100 text-yellow-600"
+        : "bg-white text-gray-600";
+
+  modalContainer.innerHTML = `
+      <div class="bg-white  rounded-lg  w-auto">
+          <!-- Title -->
+          <h1 class="text-2xl font-bold text-gray-800">
+          ${d.title}
+          </h1>
+
+          <!-- Status Row -->
+          <div class="flex items-center gap-3 mt-2 text-sm text-gray-500">
+            <span
+              class="bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium"
+            >
+              ${d.status === "open" ? d.status.charAt(0).toUpperCase() + d.status.slice(1) + "ed" : d.status.charAt(0).toUpperCase() + d.status.slice(1)}
+            </span>
+            <li  class ="ml-4"
+              >Opened by
+              <span class="font-medium text-gray-700">
+              ${d.author}
+              </span></
+            >
+            
+            <li class ="ml-4">${dateFormatting(d.createdAt)}</li>
+          </div>
+
+          <!-- Labels -->
+          <div class="flex gap-2 mt-4">
+            ${labelModal}
+          </div>
+
+          <!-- Description -->
+          <p class="text-gray-500 mt-4">
+           ${d.description}
+          </p>
+
+          <!-- Bottom Section -->
+          <div
+            class="bg-gray-100 rounded-lg p-4 mt-6 flex justify-between items-center"
+          >
+            <div>
+              <p class="text-sm text-gray-500">Assignee:</p>
+              <p class="font-semibold text-gray-700">${d.assignee ? d.assignee : ""}</p>
+            </div>
+
+            <div class="text-center">
+              <p class="text-sm text-gray-500">Priority:</p>
+              <span class=" text-xs px-3 py-1 rounded-full ${priorityModalClass}">
+                ${d.priority.toUpperCase()}
+              </span>
+            </div>
+          </div>
+        </div>
+
+    `;
+
+  document.getElementById("my_modal_1").showModal();
 };

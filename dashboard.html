@@ -128,6 +128,90 @@
       ></div>
     </section>
 
+    <!-- modal  -->
+    <section>
+      <!-- Open the modal using ID.showModal() method -->
+      <dialog id="my_modal_1" class="modal">
+        <div class="modal-box">
+          <div id="modal-container">
+            <div class="bg-white shadow-md rounded-lg p-6 w-[700px]">
+              <!-- Title -->
+              <h1 class="text-2xl font-bold text-gray-800">
+                Fix broken image uploads
+              </h1>
+
+              <!-- Status Row -->
+              <div class="flex items-center gap-3 mt-2 text-sm text-gray-500">
+                <span
+                  class="bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium"
+                >
+                  Opened
+                </span>
+                <span
+                  >Opened by
+                  <span class="font-medium text-gray-700"
+                    >Fahim Ahmed</span
+                  ></span
+                >
+                <span>•</span>
+                <span>22/02/2026</span>
+              </div>
+
+              <!-- Labels -->
+              <div class="flex gap-2 mt-4">
+                <span
+                  class="text-red-600 bg-red-100 px-3 py-1 text-xs font-semibold rounded-full"
+                >
+                  BUG
+                </span>
+                <span
+                  class="text-orange-600 bg-orange-100 px-3 py-1 text-xs font-semibold rounded-full"
+                >
+                  HELP WANTED
+                </span>
+              </div>
+
+              <!-- Description -->
+              <p class="text-gray-500 mt-4">
+                The navigation menu doesn't collapse properly on mobile devices.
+                Need to fix the responsive behavior.
+              </p>
+
+              <!-- Bottom Section -->
+              <div
+                class="bg-gray-100 rounded-lg p-4 mt-6 flex justify-between items-center"
+              >
+                <div>
+                  <p class="text-sm text-gray-500">Assignee:</p>
+                  <p class="font-semibold text-gray-700">Fahim Ahmed</p>
+                </div>
+
+                <div class="text-center">
+                  <p class="text-sm text-gray-500">Priority:</p>
+                  <span
+                    class="bg-red-500 text-white text-xs px-3 py-1 rounded-full"
+                  >
+                    HIGH
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="modal-action">
+            <form method="dialog">
+              <!-- close the modal -->
+              <button
+                class="bg-blue-700 text-white px-3 py-1 rounded border-none cursor-pointer"
+              >
+                Close
+              </button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+    </section>
+
+
     <script src="script.js"></script>
   </body>
 </html>
