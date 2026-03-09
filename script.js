@@ -1,5 +1,6 @@
 let allIssues = [];
 const cardContainer = document.getElementById("card-container");
+const errorHTML = document.getElementById("error");
 
 // loader functions
 const loader = document.getElementById("loader");
@@ -42,7 +43,6 @@ document.addEventListener("DOMContentLoaded", btnActiveSystem);
 
 // Data Fetching
 const fetchAllData = async () => {
-  const errorHTML = document.getElementById("error");
   showLoader(); // loader show
   errorHTML.innerHTML = "";
   try {
@@ -173,7 +173,7 @@ const getLabelHTML = (labels) => {
         const style = config[l.toLowerCase()];
         if (!style) return "";
 
-        return `<span class="flex items-center gap-1 border px-2 rounded-full text-sm ${style.color} ${style.color}">
+        return `<span class="flex items-center gap-1 border px-2 rounded-full text-sm ${style.color}">
         <i class="fa-solid ${style.icon}"></i> ${l.toUpperCase()}
       </span>`;
       })
@@ -272,6 +272,70 @@ const displayIssuesDetailsModal = (details) => {
 
 // card description size fixing function (this function called of renderAllCard() function in card description )
 const cardDescriptionSizing = (text) => {
-  console.log(text);
   return text.length > 70 ? text.slice(0, 70) + "..." : text;
 };
+
+// fetch search data form input
+const fetchSearchData = async (searchText) => {
+  console.log(searchText);
+  if (!searchText) return;
+
+  showLoader();
+  errorHTML.innerHTML = "";
+
+  try {
+    const res = await fetch(
+      `https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=${searchText}`,
+    );
+
+    if (!res.ok) {
+      throw new Error("Search failed");
+    }
+
+    const data = await res.json();
+    allIssues = data.data;
+    if (allIssues.length === 0) {
+      cardContainer.innerHTML = "";
+      errorHTML.innerHTML = `
+      <div class="flex flex-col items-center mb-15">
+        <img src="./assets/search-not-found.png" alt="No result" class="w-40 mb-4" />
+        <h2 class="text-2xl font-bold text-gray-600">Your Search "${searchText}" Results Not Found!</h2>
+        <p class="text-gray-400">Try searching with different keywords.</p>
+        <button onclick="fetchAllData()" class="mt-4 text-blue-600 underline">Show All Issues</button>
+      </div>
+    `;
+      return;
+    }
+    renderAllCard(allIssues);
+  } catch (error) {
+    console.error("Search Error:", error.message);
+    cardContainer.innerHTML = "";
+    errorHTML.innerHTML = `<div class="text-red-500 font-bold">No issues found for "${searchText}"</div>`;
+  } finally {
+    hideLoader();
+  }
+};
+
+const searchBtn = document.getElementById("search-btn");
+const searchInput = document.getElementById("search-input");
+
+// click button search
+searchBtn.addEventListener("click", () => {
+  const query = searchInput.value.trim();
+  if (query) {
+    fetchSearchData(query);
+    searchInput.value = "";
+  }
+});
+
+// press Enter search
+searchInput.addEventListener("keypress", (e) => {
+  if (e.key === "Enter") {
+    const query = e.target.value.trim();
+
+    if (query) {
+      fetchSearchData(query);
+      e.target.value = "";
+    }
+  }
+});
