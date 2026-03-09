@@ -43,7 +43,7 @@ const fetchAllData = async () => {
 
 fetchAllData();
 
-// display issues cards function
+// display issues cards function (this function called in fetchAllData() function)
 const renderAllCard = (cardData) => {
   const cardContainer = document.getElementById("card-container");
   const issuesCounter = document.getElementById("issues-counter");
@@ -69,11 +69,12 @@ const renderAllCard = (cardData) => {
       info.status === "open" ? "border-green-500" : "border-purple-500";
 
     cardDiv.innerHTML = `
+    <!-- call issues details function -->
        <div
           onclick = "fetchIssuesDetails(${info.id})" class="max-w-sm w-full bg-white rounded-xl shadow-md border-t-4 overflow-hidden ${cardBorder}"
         >
           <!-- top section -->
-          <div class="p-6">
+          <div class="p-5">
             <!-- header -->
             <div class="flex justify-between items-start mb-4">
               <!-- icon -->
@@ -95,7 +96,7 @@ const renderAllCard = (cardData) => {
             </h2>
             <!-- description -->
             <p class="text-gray-500 text-sm mb-4">
-              ${info.description}
+              ${cardDescriptionSizing(info.description)}
             </p>
 
             <!-- tags -->
@@ -105,8 +106,9 @@ const renderAllCard = (cardData) => {
              ${getLabelHTML(info.labels)}
             </div>
           </div>
+
           <!-- footer -->
-          <div class="bg-gray-50 px-6 py-4 text-gray-500 border-t">
+          <div class="bg-gray-50 px-5 py-4 text-gray-500 border-t">
             <p>${info.author}</p>
 
             <!-- cal date Formatting function -->
@@ -118,7 +120,7 @@ const renderAllCard = (cardData) => {
   });
 };
 
-// labels function
+// labels function (this function called in renderAllCard() and  displayIssuesDetailsModal() function)
 const getLabelHTML = (labels) => {
   return (
     labels
@@ -134,7 +136,7 @@ const getLabelHTML = (labels) => {
         const style = config[l.toLowerCase()];
         if (!style) return "";
 
-        return `<span class="flex items-center gap-1 border px-2 py-1 rounded-full text-sm text-${style.color}-500 bg-${style.color}-200">
+        return `<span class="flex items-center gap-1 border px-2 py0=-1 rounded-full text-sm text-${style.color}-500 bg-${style.color}-200">
         <i class="fa-solid ${style.icon}"></i> ${l.toUpperCase()}
       </span>`;
       })
@@ -142,7 +144,7 @@ const getLabelHTML = (labels) => {
   );
 };
 
-// date formatting function
+// date formatting function (this function called of renderAllCard() function in card date )
 const dateFormatting = (date) => {
   const newDate = new Date(date);
 
@@ -153,17 +155,17 @@ const dateFormatting = (date) => {
   return `${month}/${day}/${year}`;
 };
 
-// fetch data issues details function
+// fetch data issues details function (this function called in renderAllCard() function of parent div for get clicked card ID )
 const fetchIssuesDetails = async (id) => {
   const res = await fetch(
     `https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`,
   );
   const details = await res.json();
-  displayIssuesDetails(details);
+  displayIssuesDetailsModal(details);
 };
 
-// display issues details
-const displayIssuesDetails = (details) => {
+// display issues details (this function called in fetchIssuesDetails() function)
+const displayIssuesDetailsModal = (details) => {
   const modalContainer = document.getElementById("modal-container");
   const d = details.data;
 
@@ -195,7 +197,7 @@ const displayIssuesDetails = (details) => {
               </span></
             >
             
-            <li class ="ml-4">${dateFormatting(d.createdAt)}</li>
+            <li class ="ml-4">${dateFormatting(d.updatedAt)}</li>
           </div>
 
           <!-- Labels -->
@@ -229,4 +231,10 @@ const displayIssuesDetails = (details) => {
     `;
 
   document.getElementById("my_modal_1").showModal();
+};
+
+// card description size fixing function (this function called of renderAllCard() function in card description )
+const cardDescriptionSizing = (text) => {
+  console.log(text);
+  return text.length > 50 ? text.slice(0, 70) + "..." : text;
 };
