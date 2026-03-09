@@ -2,6 +2,9 @@ let allIssues = [];
 const cardContainer = document.getElementById("card-container");
 const errorHTML = document.getElementById("error");
 
+const searchBtn = document.getElementById("search-btn");
+const searchInput = document.getElementById("search-input");
+
 // loader functions
 const loader = document.getElementById("loader");
 const showLoader = () => {
@@ -151,21 +154,21 @@ const getLabelHTML = (labels) => {
     labels
       ?.map((l) => {
         const config = {
-          bug: { color: "text-red-500 bg-red-100", icon: "fa-bug" },
+          bug: { color: "text-red-600 bg-red-100", icon: "fa-bug" },
           "help wanted": {
-            color: "text-yellow-500 bg-yellow-200",
+            color: "text-yellow-600 bg-yellow-200",
             icon: "fa-life-ring",
           },
           enhancement: {
-            color: "text-green-500 bg-green-200",
+            color: "text-green-600 bg-green-200",
             icon: "fa-wand-magic-sparkles",
           },
           "good first issue": {
-            color: "text-purple-500 bg-purple-200",
+            color: "text-purple-600 bg-purple-200",
             icon: "fa-star",
           },
           documentation: {
-            color: "text-gray-500 bg-gray-200",
+            color: "text-gray-600 bg-gray-200",
             icon: "fa-file-code",
           },
         };
@@ -173,7 +176,7 @@ const getLabelHTML = (labels) => {
         const style = config[l.toLowerCase()];
         if (!style) return "";
 
-        return `<span class="flex items-center gap-1 border px-2 rounded-full text-sm ${style.color}">
+        return `<span class="flex items-center font-bold gap-1 border px-2 rounded-full text-sm ${style.color}">
         <i class="fa-solid ${style.icon}"></i> ${l.toUpperCase()}
       </span>`;
       })
@@ -226,8 +229,8 @@ const displayIssuesDetailsModal = (details) => {
 
           <!-- Status Row -->
           <div class="flex flex-wrap items-center gap-3 mt-2 text-sm text-gray-500">
-            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">
-              ${d.status === "open" ? d.status.charAt(0).toUpperCase() + d.status.slice(1) + "ed" : d.status.charAt(0).toUpperCase() + d.status.slice(1)}
+            <span class="bg-green-600 text-white px-3 py-1 rounded-full font-medium">
+              ${d.status === "open" ? "Opened" : "Closed"}
             </span>
             <li  class ="ml-4">Opened by
               <span class="font-medium text-gray-700">
@@ -253,7 +256,7 @@ const displayIssuesDetailsModal = (details) => {
           >
             <div>
               <p class="text-sm text-gray-500">Assignee:</p>
-              <p class="font-semibold text-gray-700">${d.assignee ? d.assignee : "Not Found Assignee"}</p>
+              <p class="font-semibold text-gray-700">${d.assignee ? d.assignee : "Not Found "}</p>
             </div>
 
             <div class="text-center">
@@ -282,7 +285,6 @@ const fetchSearchData = async (searchText) => {
 
   showLoader();
   errorHTML.innerHTML = "";
-
   try {
     const res = await fetch(
       `https://phi-lab-server.vercel.app/api/v1/lab/issues/search?q=${searchText}`,
@@ -301,9 +303,10 @@ const fetchSearchData = async (searchText) => {
         <img src="./assets/search-not-found.png" alt="No result" class="w-40 mb-4" />
         <h2 class="text-2xl font-bold text-gray-600">Your Search "${searchText}" Results Not Found!</h2>
         <p class="text-gray-400">Try searching with different keywords.</p>
-        <button onclick="fetchAllData()" class="mt-4 text-blue-600 underline">Show All Issues</button>
+        <button onclick="fetchAllData()" class="mt-4 cursor-pointer text-blue-600 underline">Show All Issues</button>
       </div>
     `;
+      searchInput.value = "";
       return;
     }
     renderAllCard(allIssues);
@@ -316,15 +319,11 @@ const fetchSearchData = async (searchText) => {
   }
 };
 
-const searchBtn = document.getElementById("search-btn");
-const searchInput = document.getElementById("search-input");
-
 // click button search
 searchBtn.addEventListener("click", () => {
   const query = searchInput.value.trim();
   if (query) {
     fetchSearchData(query);
-    searchInput.value = "";
   }
 });
 
@@ -335,7 +334,6 @@ searchInput.addEventListener("keypress", (e) => {
 
     if (query) {
       fetchSearchData(query);
-      e.target.value = "";
     }
   }
 });
