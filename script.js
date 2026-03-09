@@ -1,6 +1,16 @@
-// button active function
 let allIssues = [];
+const cardContainer = document.getElementById("card-container");
 
+// loader functions
+const loader = document.getElementById("loader");
+const showLoader = () => {
+  loader.classList.remove("hidden");
+};
+const hideLoader = () => {
+  loader.classList.add("hidden");
+};
+
+// button active function
 const btnActiveSystem = () => {
   const buttons = document.querySelectorAll(".primaryBtn");
 
@@ -32,23 +42,38 @@ document.addEventListener("DOMContentLoaded", btnActiveSystem);
 
 // Data Fetching
 const fetchAllData = async () => {
-  const url = await fetch(
-    "https://phi-lab-server.vercel.app/api/v1/lab/issues",
-  );
-  const data = await url.json();
-  // reassign allIssues Data
-  allIssues = data.data;
-  renderAllCard(allIssues);
-};
+  const errorHTML = document.getElementById("error");
+  showLoader(); // loader show
+  errorHTML.innerHTML = "";
+  try {
+    const res = await fetch(
+      "https://phi-lab-server.vercel.app/api/v1/lab/issues",
+    );
 
+    if (!res.ok) {
+      throw new Error("404 Not Found");
+    }
+    const data = await res.json();
+    allIssues = data.data;
+    renderAllCard(allIssues);
+  } catch (error) {
+    console.error("Fetch Error:", error.message);
+    cardContainer.innerHTML = ""; //if occurred error card content will be removed
+    errorHTML.innerHTML = `
+    <div class = "text-3xl text-orange-500 font-bold" >404</div> 
+    <div class = "text-blue-500 font-bold" >Not Found Pleas try again!</div>
+    `;
+  } finally {
+    hideLoader(); // remove loader
+  }
+};
 fetchAllData();
 
 // display issues cards function (this function called in fetchAllData() function)
 const renderAllCard = (cardData) => {
-  const cardContainer = document.getElementById("card-container");
   const issuesCounter = document.getElementById("issues-counter");
 
-  issuesCounter.innerHTML = `${cardData.length} Issues`;
+  issuesCounter.innerHTML = `${cardData?.length || 0} Issues`;
   cardContainer.innerHTML = "";
 
   cardData.forEach((info) => {
@@ -109,7 +134,7 @@ const renderAllCard = (cardData) => {
 
           <!-- footer -->
           <div class="bg-gray-50 px-5 py-4 text-gray-500 border-t">
-            <p>${info.author}</p>
+            <p> #1 By ${info.author}</p>
 
             <!-- cal date Formatting function -->
              <p>${dateFormatting(info.createdAt)}</p>
@@ -126,17 +151,29 @@ const getLabelHTML = (labels) => {
     labels
       ?.map((l) => {
         const config = {
-          bug: { color: "red", icon: "fa-bug" },
-          "help wanted": { color: "yellow", icon: "fa-life-ring" },
-          enhancement: { color: "green", icon: "fa-wand-magic-sparkles" },
-          "good first issue": { color: "purple", icon: "fa-star" },
-          documentation: { color: "gray", icon: "fa-file-code" },
+          bug: { color: "text-red-500 bg-red-100", icon: "fa-bug" },
+          "help wanted": {
+            color: "text-yellow-500 bg-yellow-200",
+            icon: "fa-life-ring",
+          },
+          enhancement: {
+            color: "text-green-500 bg-green-200",
+            icon: "fa-wand-magic-sparkles",
+          },
+          "good first issue": {
+            color: "text-purple-500 bg-purple-200",
+            icon: "fa-star",
+          },
+          documentation: {
+            color: "text-gray-500 bg-gray-200",
+            icon: "fa-file-code",
+          },
         };
 
         const style = config[l.toLowerCase()];
         if (!style) return "";
 
-        return `<span class="flex items-center gap-1 border px-2 py0=-1 rounded-full text-sm text-${style.color}-500 bg-${style.color}-200">
+        return `<span class="flex items-center gap-1 border px-2 rounded-full text-sm ${style.color} ${style.color}">
         <i class="fa-solid ${style.icon}"></i> ${l.toUpperCase()}
       </span>`;
       })
@@ -157,11 +194,15 @@ const dateFormatting = (date) => {
 
 // fetch data issues details function (this function called in renderAllCard() function of parent div for get clicked card ID )
 const fetchIssuesDetails = async (id) => {
-  const res = await fetch(
-    `https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`,
-  );
-  const details = await res.json();
-  displayIssuesDetailsModal(details);
+  try {
+    const res = await fetch(
+      `https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`,
+    );
+    const details = await res.json();
+    displayIssuesDetailsModal(details);
+  } catch (error) {
+    console.error("Fetch Error:", error.message);
+  }
 };
 
 // display issues details (this function called in fetchIssuesDetails() function)
@@ -184,18 +225,14 @@ const displayIssuesDetailsModal = (details) => {
           </h1>
 
           <!-- Status Row -->
-          <div class="flex items-center gap-3 mt-2 text-sm text-gray-500">
-            <span
-              class="bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium"
-            >
+          <div class="flex flex-wrap items-center gap-3 mt-2 text-sm text-gray-500">
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium">
               ${d.status === "open" ? d.status.charAt(0).toUpperCase() + d.status.slice(1) + "ed" : d.status.charAt(0).toUpperCase() + d.status.slice(1)}
             </span>
-            <li  class ="ml-4"
-              >Opened by
+            <li  class ="ml-4">Opened by
               <span class="font-medium text-gray-700">
               ${d.author}
-              </span></
-            >
+              </span></li>
             
             <li class ="ml-4">${dateFormatting(d.updatedAt)}</li>
           </div>
@@ -216,7 +253,7 @@ const displayIssuesDetailsModal = (details) => {
           >
             <div>
               <p class="text-sm text-gray-500">Assignee:</p>
-              <p class="font-semibold text-gray-700">${d.assignee ? d.assignee : ""}</p>
+              <p class="font-semibold text-gray-700">${d.assignee ? d.assignee : "Not Found Assignee"}</p>
             </div>
 
             <div class="text-center">
@@ -236,5 +273,5 @@ const displayIssuesDetailsModal = (details) => {
 // card description size fixing function (this function called of renderAllCard() function in card description )
 const cardDescriptionSizing = (text) => {
   console.log(text);
-  return text.length > 50 ? text.slice(0, 70) + "..." : text;
+  return text.length > 70 ? text.slice(0, 70) + "..." : text;
 };
