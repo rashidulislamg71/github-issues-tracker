@@ -43,6 +43,7 @@ const fetchAllData = async () => {
 
 fetchAllData();
 
+// display issues cards function
 const renderAllCard = (cardData) => {
   const cardContainer = document.getElementById("card-container");
   const issuesCounter = document.getElementById("issues-counter");
@@ -55,7 +56,7 @@ const renderAllCard = (cardData) => {
     const statusImg =
       info.status === "open"
         ? `<img src="./assets/Open-Status.png" alt="open-status" />`
-        : `<img src="./assets/Closed- Status .png" alt="Closed-status" />`;
+        : `<img src="./assets/Closed-Status.png" alt="Closed-status" />`;
 
     const priorityClass =
       info.priority === "high"
@@ -66,42 +67,6 @@ const renderAllCard = (cardData) => {
 
     const cardBorder =
       info.status === "open" ? "border-green-500" : "border-purple-500";
-
-    const label = info.labels
-      ?.map((l) => {
-        if (l === "bug") {
-          return `<span class="flex items-center gap-1 border px-2  py-1 rounded-full text-sm text-red-500 bg-red-200">
-        <i class="fa-solid fa-bug"></i> ${l.toUpperCase()}
-      </span>`;
-        }
-
-        if (l === "help wanted") {
-          return `<span class="flex items-center gap-1 border px-3 font-bold py-1 rounded-full text-sm text-yellow-600 bg-yellow-100">
-        <i class="fa-solid fa-life-ring"></i> ${l.toUpperCase().sliceLabel}
-      </span>`;
-        }
-
-        if (l === "enhancement") {
-          return `<span class="flex items-center gap-1 border px-3 font-bold py-1 rounded-full text-sm text-green-500 bg-green-200">
-        <i class="fa-solid fa-wand-magic-sparkles"></i> ${l.toUpperCase()}
-      </span>`;
-        }
-
-        if (l === "good first issue") {
-          return `<span class="flex items-center gap-1 border px-3 font-bold py-1 rounded-full text-sm text-purple-500 bg-purple-200">
-        <i class="fa-solid fa-star"></i> ${l.toUpperCase()}
-      </span>`;
-        }
-
-        if (l === "documentation") {
-          return `<span class="flex items-center gap-1 border px-3 font-bold py-1 rounded-full text-sm text-gray-500 bg-gray-200">
-        <i class="fa-solid fa-file-code"></i> ${l.toUpperCase()}
-      </span>`;
-        }
-
-        return "";
-      })
-      .join("");
 
     cardDiv.innerHTML = `
        <div
@@ -117,7 +82,7 @@ const renderAllCard = (cardData) => {
               >
                  ${statusImg}
               </div>
-              <!-- statues -->
+              <!-- status -->
               <span
                 class="${priorityClass} px-4 py-1 rounded-full text-sm font-semibold"
               >
@@ -135,12 +100,16 @@ const renderAllCard = (cardData) => {
 
             <!-- tags -->
             <div class="flex gap-1 flex-wrap">
-             ${label || ""}
+
+            <!-- cal labels function -->
+             ${getLabelHTML(info.labels)}
             </div>
           </div>
           <!-- footer -->
           <div class="bg-gray-50 px-6 py-4 text-gray-500 border-t">
             <p>${info.author}</p>
+
+            <!-- cal date Formatting function -->
              <p>${dateFormatting(info.createdAt)}</p>
           </div>
         </div>
@@ -149,6 +118,31 @@ const renderAllCard = (cardData) => {
   });
 };
 
+// labels function
+const getLabelHTML = (labels) => {
+  return (
+    labels
+      ?.map((l) => {
+        const config = {
+          bug: { color: "red", icon: "fa-bug" },
+          "help wanted": { color: "yellow", icon: "fa-life-ring" },
+          enhancement: { color: "green", icon: "fa-wand-magic-sparkles" },
+          "good first issue": { color: "purple", icon: "fa-star" },
+          documentation: { color: "gray", icon: "fa-file-code" },
+        };
+
+        const style = config[l.toLowerCase()];
+        if (!style) return "";
+
+        return `<span class="flex items-center gap-1 border px-2 py-1 rounded-full text-sm text-${style.color}-500 bg-${style.color}-200">
+        <i class="fa-solid ${style.icon}"></i> ${l.toUpperCase()}
+      </span>`;
+      })
+      .join("") || ""
+  );
+};
+
+// date formatting function
 const dateFormatting = (date) => {
   const newDate = new Date(date);
 
@@ -159,6 +153,7 @@ const dateFormatting = (date) => {
   return `${month}/${day}/${year}`;
 };
 
+// fetch data issues details function
 const fetchIssuesDetails = async (id) => {
   const res = await fetch(
     `https://phi-lab-server.vercel.app/api/v1/lab/issue/${id}`,
@@ -167,46 +162,10 @@ const fetchIssuesDetails = async (id) => {
   displayIssuesDetails(details);
 };
 
+// display issues details
 const displayIssuesDetails = (details) => {
   const modalContainer = document.getElementById("modal-container");
   const d = details.data;
-  console.log(d);
-
-  const labelModal = d.labels
-    ?.map((l) => {
-      if (l === "bug") {
-        return `<span class="flex items-center gap-1 border px-2  py-1 rounded-full text-sm text-red-500 bg-red-200">
-        <i class="fa-solid fa-bug"></i> ${l.toUpperCase()}
-      </span>`;
-      }
-
-      if (l === "help wanted") {
-        return `<span class="flex items-center gap-1 border px-3 font-bold py-1 rounded-full text-sm text-yellow-600 bg-yellow-100">
-        <i class="fa-solid fa-life-ring"></i> ${l.toUpperCase().sliceLabel}
-      </span>`;
-      }
-
-      if (l === "enhancement") {
-        return `<span class="flex items-center gap-1 border px-3 font-bold py-1 rounded-full text-sm text-green-500 bg-green-200">
-        <i class="fa-solid fa-wand-magic-sparkles"></i> ${l.toUpperCase()}
-      </span>`;
-      }
-
-      if (l === "good first issue") {
-        return `<span class="flex items-center gap-1 border px-3 font-bold py-1 rounded-full text-sm text-purple-500 bg-purple-200">
-        <i class="fa-solid fa-star"></i> ${l.toUpperCase()}
-      </span>`;
-      }
-
-      if (l === "documentation") {
-        return `<span class="flex items-center gap-1 border px-3 font-bold py-1 rounded-full text-sm text-gray-500 bg-gray-200">
-        <i class="fa-solid fa-file-code"></i> ${l.toUpperCase()}
-      </span>`;
-      }
-
-      return "";
-    })
-    .join("");
 
   const priorityModalClass =
     d.priority === "high"
@@ -241,7 +200,7 @@ const displayIssuesDetails = (details) => {
 
           <!-- Labels -->
           <div class="flex gap-2 mt-4">
-            ${labelModal}
+           ${getLabelHTML(d.labels)}
           </div>
 
           <!-- Description -->
@@ -260,7 +219,7 @@ const displayIssuesDetails = (details) => {
 
             <div class="text-center">
               <p class="text-sm text-gray-500">Priority:</p>
-              <span class=" text-xs px-3 py-1 rounded-full ${priorityModalClass}">
+              <span class=" text-xs px-3 py-1 font-bold rounded-full ${priorityModalClass}">
                 ${d.priority.toUpperCase()}
               </span>
             </div>
